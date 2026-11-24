@@ -23,6 +23,31 @@ import { join } from 'node:path';
 const CONFESSION =
   'I have read your entire codebase twice and I still have no idea what it does, so I just rename a variable and hope the tests forgive me.';
 
+// The competition gate only accepts one line of 1-200 characters, so
+// check the confession against that contract before writing anything:
+// a line that broke the gate would score zero no matter how funny it
+// is, and failing loudly here beats silently writing an invalid entry.
+function validateConfession(line: string): void {
+  if (line.length < 1 || line.length > 200) {
+    console.error(`Confession must be 1-200 characters, got ${line.length}.`);
+    process.exit(1);
+  }
+  if (line.includes('\n') || line.includes('\r')) {
+    console.error('Confession must be a single line (no newline characters).');
+    process.exit(1);
+  }
+  if (line.trim().length === 0) {
+    console.error('Confession must not be only whitespace.');
+    process.exit(1);
+  }
+  if (line !== line.trim()) {
+    console.error('Confession must not have leading or trailing whitespace.');
+    process.exit(1);
+  }
+}
+
+validateConfession(CONFESSION);
+
 const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
 writeFileSync(join(outputDir, 'entry.txt'), CONFESSION, 'utf8');
